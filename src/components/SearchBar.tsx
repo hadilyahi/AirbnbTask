@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react"; 
+import { Search } from "lucide-react";
 import DateRangePicker from "./DateSelector";
 import GuestSelector from "./GuestSelector";
 import DestinationSelector from "./DestinationSelector";
@@ -26,35 +26,41 @@ const SearchBar: React.FC<{
   };
 
   return (
-    <div className="flex items-center bg-white rounded-full shadow-md px-4 py-2 w-full max-w-4xl mx-auto">
-   
-      <div className="flex-1 px-4">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center bg-white rounded-2xl shadow-md px-4 py-4 sm:py-2 w-full max-w-4xl mx-auto gap-4 sm:gap-0">
+      
+      {/* Destination */}
+      <div className="flex-1 sm:px-4">
         <div className="text-md font-semibold">Where</div>
         <DestinationSelector selectedDestination={destination} onChange={setDestination} />
       </div>
 
-      <div className="w-px h-8 bg-gray-300 mx-2" />
+      {/* Divider for desktop */}
+      <div className="hidden sm:block w-px h-8 bg-gray-300 mx-2" />
 
-   
-      <div className="flex-1 px-4">
+      {/* Date Range */}
+      <div className="flex-1 sm:px-4">
         <DateRangePicker range={dateRange} onChange={setDateRange} />
       </div>
 
-      <div className="w-px h-8 bg-gray-300 mx-2" />
+      {/* Divider for desktop */}
+      <div className="hidden sm:block w-px h-8 bg-gray-300 mx-2" />
 
-    
-      <div className="flex-1 px-4">
+      {/* Guests */}
+      <div className="flex-1 sm:px-4">
         <div className="text-md font-semibold">Who</div>
         <GuestSelector {...guests} onChange={setGuests} />
       </div>
 
-    
+      {/* Search Button */}
+      <div className="flex justify-end sm:ml-2">
       <button
-        onClick={handleSearchClick}
-        className="bg-red-500 text-white p-3 rounded-2xl hover:bg-rose-600 ml-2"
-      >
-        <Search size={20} />
-      </button>
+  onClick={handleSearchClick}
+  className="bg-red-500 text-white p-3 rounded-full hover:bg-rose-600 flex items-center justify-center"
+>
+  <Search size={20} />
+</button>
+
+      </div>
     </div>
   );
 };
