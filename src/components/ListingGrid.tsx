@@ -1,10 +1,10 @@
-
 import { useEffect, useState } from "react";
 import { listings as mockListings } from "../data/listings";
 import { FaRegHeart, FaHeart, FaStar } from "react-icons/fa";
 import { useKeenSlider } from "keen-slider/react";
 import "keen-slider/keen-slider.min.css";
 import FilterBar from "./FilterBar";
+import { DateRange } from "react-day-picker";
 
 interface Listing {
   id: number;
@@ -36,20 +36,18 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
     <div className="rounded-lg border shadow hover:shadow-lg transition overflow-hidden">
       <div className="relative">
         <div ref={sliderRef} className="keen-slider h-60">
-          {listing.images.map((img: string, index: number) => (
+          {listing.images.map((img, index) => (
             <div className="keen-slider__slide" key={index}>
               <img src={img} alt={listing.title} className="w-full h-60 object-cover" />
             </div>
           ))}
         </div>
-
         <button
           onClick={toggleWishlist}
           className="absolute top-2 right-2 text-white bg-black/40 p-2 rounded-full"
         >
           {isWishlisted ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
         </button>
-
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
           {listing.images.map((_, idx) => (
             <span
@@ -61,7 +59,6 @@ const ListingCard = ({ listing }: { listing: Listing }) => {
           ))}
         </div>
       </div>
-
       <div className="p-3">
         <div className="flex justify-between text-sm font-semibold">
           <span>{listing.location}</span>
@@ -89,10 +86,20 @@ const SkeletonCard = () => (
   </div>
 );
 
-const ListingGrid = () => {
+const ListingGrid: React.FC<{ filters: {
+  destination: string | null;
+  dateRange: DateRange | undefined;
+  guests: {
+    adults: number;
+    children: number;
+    infants: number;
+    pets: number;
+  };
+} }> = ({ filters }) => {
   const [loading, setLoading] = useState(true);
   const [listings, setListings] = useState<Listing[]>([]);
   const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
+  const [activeCategory, setActiveCategory] = useState("all");
 
   useEffect(() => {
     setTimeout(() => {
@@ -102,18 +109,44 @@ const ListingGrid = () => {
     }, 1500);
   }, []);
 
-  const handleFilterChange = (filter: string) => {
-    if (filter === "all") {
-      setFilteredListings(listings);
-    } else {
-      const filtered = listings.filter((listing) => listing.category === filter);
+  useEffect(() => {
+    if (!loading) {
+      const filtered = listings.filter((listing) => {
+        const matchDestination = filters.destination
+          ? listing.location.toLowerCase().includes(filters.destination.toLowerCase())
+          : true;
+
+          const matchDates =
+          filters.dateRange?.from && filters.dateRange?.to
+            ? (() => {
+                const fromMonth = filters.dateRange.from.toLocaleString("default", { month: "long" }); 
+                const toMonth = filters.dateRange.to.toLocaleString("default", { month: "long" }); 
+                const lowerDateStr = listing.dates.toLowerCase();
+                return (
+                  lowerDateStr.includes(fromMonth.toLowerCase()) ||
+                  lowerDateStr.includes(toMonth.toLowerCase())
+                );
+              })()
+            : true;
+        
+
+        const totalGuests =
+          filters.guests.adults + filters.guests.children + filters.guests.infants;
+
+        const matchGuests = totalGuests <= 5;
+
+        const matchCategory = activeCategory === "all" || listing.category === activeCategory;
+
+        return matchDestination && matchDates && matchGuests && matchCategory;
+      });
+
       setFilteredListings(filtered);
     }
-  };
+  }, [filters, activeCategory, loading, listings]);
 
   return (
     <div>
-      <FilterBar onFilterChange={handleFilterChange} />
+      <FilterBar onFilterChange={(cat) => setActiveCategory(cat)} />
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
