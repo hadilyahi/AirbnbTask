@@ -53,13 +53,12 @@ const SearchBar: React.FC<{
 
       {/* Search Button */}
       <div className="flex justify-end sm:ml-2">
-      <button
-  onClick={handleSearchClick}
-  className="bg-red-500 text-white p-3 rounded-full hover:bg-rose-600 flex items-center justify-center"
->
-  <Search size={20} />
-</button>
-
+        <button
+          onClick={handleSearchClick}
+          className="bg-red-500 text-white p-3 rounded-2xl hover:bg-red-600 w-full     "
+        >
+          <Search size={20} />
+        </button>
       </div>
     </div>
   );
